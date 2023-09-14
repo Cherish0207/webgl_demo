@@ -37,10 +37,10 @@
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
-    void main() {
-      gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
-    }
-  </script>
+  void main() {
+    gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
+  }
+</script>
 
 <script>
   var canvas = document.getElementById('webgl');
@@ -53,44 +53,52 @@
   var program = initShader(gl, vertexShaderSource, fragShaderSource);
   var aposLocation = gl.getAttribLocation(program, 'apos');
 
-  //创建立方体的顶点坐标数据
+  // 8个顶点坐标数组
   var data = new Float32Array([
-    //z为0.5时，xOy平面上的四个点坐标
-    0.5, 0.5, 0.5,
-    -0.5, 0.5, 0.5,
-    -0.5, -0.5, 0.5,
-    0.5, -0.5, 0.5,
-    //z为-0.5时，xOy平面上的四个点坐标
-    0.5, 0.5, -0.5,
-    -0.5, 0.5, -0.5,
-    -0.5, -0.5, -0.5,
-    0.5, -0.5, -0.5,
-    //上面两组坐标分别对应起来组成一一对
-    0.5, 0.5, 0.5,
-    0.5, 0.5, -0.5,
-
-    -0.5, 0.5, 0.5,
-    -0.5, 0.5, -0.5,
-
-    -0.5, -0.5, 0.5,
-    -0.5, -0.5, -0.5,
-
-    0.5, -0.5, 0.5,
-    0.5, -0.5, -0.5,
+    0.5, 0.5, 0.5,//顶点0
+    -0.5, 0.5, 0.5,//顶点1
+    -0.5, -0.5, 0.5,//顶点2
+    0.5, -0.5, 0.5,//顶点3
+    0.5, 0.5, -0.5,//顶点4
+    -0.5, 0.5, -0.5,//顶点5
+    -0.5, -0.5, -0.5,//顶点6
+    0.5, -0.5, -0.5,//顶点7
+  ]);
+  // 顶点索引数组：无符号8位整型数
+  var indexes = new Uint8Array([
+    // 前四个点
+    0, 1, 2, 3,
+    // 后四个顶点
+    4, 5, 6, 7,
+    // 前后对应点
+    0, 4,
+    1, 5,
+    2, 6,
+    3, 7
   ]);
 
+  // indexesBuffer：存储顶点索引数据的缓冲区
+  var indexesBuffer = gl.createBuffer();
+  //绑定缓冲区对象
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexesBuffer);
+  //索引数组indexes数据传入缓冲区
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexes, gl.STATIC_DRAW);
+
+  // buffer：存储顶点数据的缓冲区
   var buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
   gl.vertexAttribPointer(aposLocation, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(aposLocation);
+  // （缓冲区只有一个会处于激活状态）
 
   //LINE_LOOP模式绘制前四个点
-  gl.drawArrays(gl.LINE_LOOP, 0, 4);
+  gl.drawElements(gl.LINE_LOOP, 4, gl.UNSIGNED_BYTE, 0);
   //LINE_LOOP模式从第五个点开始绘制四个点
-  gl.drawArrays(gl.LINE_LOOP, 4, 4);
+  gl.drawElements(gl.LINE_LOOP, 4, gl.UNSIGNED_BYTE, 4);
   //LINES模式绘制后8个点
-  gl.drawArrays(gl.LINES, 8, 8);
+  gl.drawElements(gl.LINES, 8, gl.UNSIGNED_BYTE, 8);
+
 
   //声明初始化着色器函数
   function initShader(gl, vertexShaderSource, fragmentShaderSource) {
