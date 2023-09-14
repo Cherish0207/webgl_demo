@@ -7,38 +7,30 @@
 </head>
 
 <body>
-  <canvas id="webgl" width="500" height="500" style="background-color:#0d72da"></canvas>
+  <canvas id="webgl" width="500" height="500" style="background-color:#fff"></canvas>
 </body>
 
 <script id="vertexShader" type="x-shader/x-vertex">
   attribute vec4 apos;
+  attribute vec4 a_color;
+  //varying声明顶点颜色插值后变量 保存插值的结果
+  varying vec4 v_color;
   void main() {
-    //设置几何体轴旋转角度为30度，并把角度值转化为弧度值
-    float radian = radians(30.0);
-    //求解旋转角度余弦值
-    float cos = cos(radian);
-    //求解旋转角度正弦值
-    float sin = sin(radian);
-    //引用上面的计算数据，创建绕x轴旋转矩阵
-    // 1      0       0    0
-    // 0   cosα   sinα   0
-    // 0  -sinα   cosα   0
-    // 0      0        0   1
-    mat4 mx = mat4(1,0,0,0,  0,cos,-sin,0,  0,sin,cos,0,  0,0,0,1);
-    //引用上面的计算数据，创建绕y轴旋转矩阵
-    // cosβ   0   sinβ    0
-    //     0   1   0        0
-    //-sinβ   0   cosβ    0
-    //     0   0   0        1
-    mat4 my = mat4(cos,0,-sin,0,  0,1,0,0,  sin,0,cos,0,  0,0,0,1);
-    //两个旋转矩阵、顶点齐次坐标连乘
-    gl_Position = mx * my * apos;
+    // 顶点坐标apos赋值给内置变量gl_Position
+    gl_Position = apos;
+    //顶点颜色插值计算
+    v_color = a_color;
   }
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
+  // 所有float类型数据的精度是lowp
+  precision lowp float;
+  // 接收顶点着色器中v_color数据
+  varying vec4 v_color;
   void main() {
-    gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
+    // 插值后颜色数据赋值给对应的片元
+    gl_FragColor = v_color;
   }
 </script>
 
@@ -52,52 +44,33 @@
   //初始化着色器
   var program = initShader(gl, vertexShaderSource, fragShaderSource);
   var aposLocation = gl.getAttribLocation(program, 'apos');
+  var a_color = gl.getAttribLocation(program, 'a_color');
 
-  // 8个顶点坐标数组
-  var data = new Float32Array([
-    0.5, 0.5, 0.5,//顶点0
-    -0.5, 0.5, 0.5,//顶点1
-    -0.5, -0.5, 0.5,//顶点2
-    0.5, -0.5, 0.5,//顶点3
-    0.5, 0.5, -0.5,//顶点4
-    -0.5, 0.5, -0.5,//顶点5
-    -0.5, -0.5, -0.5,//顶点6
-    0.5, -0.5, -0.5,//顶点7
-  ]);
-  // 顶点索引数组：无符号8位整型数
-  var indexes = new Uint8Array([
-    // 前四个点
-    0, 1, 2, 3,
-    // 后四个顶点
-    4, 5, 6, 7,
-    // 前后对应点
-    0, 4,
-    1, 5,
-    2, 6,
-    3, 7
-  ]);
+  /**
+   data：顶点位置数据数组
+   colorData：顶点颜色数组，存储两个顶点对应RGB颜色值(0,0,1)、(1,0,0)
+   **/
+  var data = new Float32Array([-0.5, 0.5, 0.5, 0.5]);
+  var colorData = new Float32Array([0, 0, 1, 1, 0, 0]);
 
-  // indexesBuffer：存储顶点索引数据的缓冲区
-  var indexesBuffer = gl.createBuffer();
+  // colorBuffer：存储顶点颜色数据的缓冲区
+  var colorBuffer = gl.createBuffer();
   //绑定缓冲区对象
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexesBuffer);
-  //索引数组indexes数据传入缓冲区
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexes, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  //顶点颜色数据colorData数据传入缓冲区
+  gl.bufferData(gl.ARRAY_BUFFER, colorData, gl.STATIC_DRAW);
+  gl.vertexAttribPointer(a_color, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(a_color);
 
   // buffer：存储顶点数据的缓冲区
   var buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-  gl.vertexAttribPointer(aposLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(aposLocation, 2, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(aposLocation);
   // （缓冲区只有一个会处于激活状态）
 
-  //LINE_LOOP模式绘制前四个点
-  gl.drawElements(gl.LINE_LOOP, 4, gl.UNSIGNED_BYTE, 0);
-  //LINE_LOOP模式从第五个点开始绘制四个点
-  gl.drawElements(gl.LINE_LOOP, 4, gl.UNSIGNED_BYTE, 4);
-  //LINES模式绘制后8个点
-  gl.drawElements(gl.LINES, 8, gl.UNSIGNED_BYTE, 8);
+  gl.drawArrays(gl.LINES, 0, 2);
 
 
   //声明初始化着色器函数
