@@ -11,17 +11,18 @@
 </body>
 
 <script id="vertexShader" type="x-shader/x-vertex">
-  attribute vec4 apos;
-  void main() {
-    gl_Position = apos;
-  }
-</script>
+    attribute vec4 apos;
+    void main() {
+      // 沿着x轴负方向平移0.4:逐顶点把x分量减少0.4
+      gl_Position = vec4(apos.x-0.4,apos.y,apos.z,1);
+    }
+  </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
-  void main() {
-    gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
-  }
-</script>
+    void main() {
+      gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
+    }
+  </script>
 
 <script>
   var canvas = document.getElementById('webgl');
@@ -40,10 +41,6 @@
     0, 1, 0,
     1, 0, 0
   ]);
-  // 沿 x 轴负半轴平移 0.4: 每个顶点的x坐标减少0.4
-  for (let i = 0; i < 9; i += 3) {
-    data[i] -= 0.4;
-  }
 
   var buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
