@@ -40,6 +40,10 @@
     0, 1, 0,
     1, 0, 0
   ]);
+  // 沿 x 轴负半轴平移 0.4: 每个顶点的x坐标减少0.4
+  for (let i = 0; i < 9; i += 3) {
+    data[i] -= 0.4;
+  }
 
   var buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
