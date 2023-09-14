@@ -11,6 +11,21 @@
   <canvas id="webgl" width="500" height="500" style="background-color: blue"></canvas>
 </body>
 
+<!-- 顶点着色器源码 -->
+<script id="vertexShader" type="x-shader/x-vertex">
+  void main() {
+    gl_PointSize=20.0;//给内置变量gl_PointSize赋值像素大小
+    gl_Position =vec4(0.0,0.0,0.0,1.0);//顶点位置，位于坐标原点
+  }
+</script>
+
+<!-- 片元着色器源码 -->
+<script id="fragmentShader" type="x-shader/x-fragment">
+  void main() {
+    gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+  }
+</script>
+
 <script>
   //通过getElementById()方法获取canvas画布
   var canvas = document.getElementById('webgl');
@@ -18,20 +33,10 @@
   var gl = canvas.getContext('webgl');
 
   //顶点着色器源码
-  var vertexShaderSource = '' +
-    'void main(){' +
-    //给内置变量gl_PointSize赋值像素大小
-    '   gl_PointSize=20.0;' +
-    //顶点位置，位于坐标原点
-    '   gl_Position =vec4(0.0,0.0,0.0,1.0);' +
-    '}';
+  var vertexShaderSource = document.getElementById('vertexShader').innerText;
 
   //片元着色器源码
-  var fragShaderSource = '' +
-    'void main(){' +
-    //定义片元颜色
-    '   gl_FragColor = vec4(1.0,0.0,0.0,1.0);' +
-    '}';
+  var fragShaderSource = document.getElementById('fragmentShader').innerText;
 
   //初始化着色器
   var program = initShader(gl, vertexShaderSource, fragShaderSource);
