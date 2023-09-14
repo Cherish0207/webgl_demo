@@ -48,10 +48,17 @@
 
   /**
    data：顶点位置数据数组
-   colorData：顶点颜色数组，存储三个顶点对应RGB颜色值(1,0, 0)、(0, 1, 0)、(0, 0, 1)
+   colorData：顶点颜色数组，存储六个顶点对应RGB颜色值(1,0, 0)、(0, 1, 0)、(0, 0, 1)
    **/
-  var data = new Float32Array([-0.5, 0.5, 0.5, 0.5, 0.5, -0.5]);
-  var colorData = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+  var data = new Float32Array([
+    -0.5, 0.5, 0.5, 0.5, 0.5, -0.5,//第一个三角形的三个点
+    -0.5, 0.5, 0.5, -0.5, -0.5, -0.5//第二个三角形的三个点
+  ]);
+  var colorData = new Float32Array([
+    1, 0, 0, 1, 0, 0, 1, 0, 0,//三个红色点
+    0, 0, 1, 0, 0, 1, 0, 0, 1//三个蓝色点
+  ]);
+  // 每个三角形是一个子单元，各自内部进行插值，插值结果互不影响  
 
   // colorBuffer：存储顶点颜色数据的缓冲区
   var colorBuffer = gl.createBuffer();
@@ -68,7 +75,7 @@
   gl.enableVertexAttribArray(aposLocation);
   // （缓冲区只有一个会处于激活状态）
 
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 
   //声明初始化着色器函数
