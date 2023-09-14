@@ -11,22 +11,16 @@
 </body>
 
 <script id="vertexShader" type="x-shader/x-vertex">
-  attribute vec2 apos;
-  varying vec3 color;
+  attribute vec4 apos;
   void main() {
-    gl_PointSize = 1.0;
-    color = vec3(0.5 + apos * 0.5, 0.0);
-
-    gl_Position = vec4(apos * 0.5, 1.0, 1.0);
+    gl_Position = apos;
   }
 </script>
 
 <script id="fragmentShader" type="x-shader/x-fragment">
-  precision mediump float;
-  varying vec3 color;
   void main() {
-    gl_FragColor = vec4(color, 1.0);
-  }   
+    gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
+  }
 </script>
 
 <script>
@@ -40,18 +34,20 @@
   var program = initShader(gl, vertexShaderSource, fragShaderSource);
   var aposLocation = gl.getAttribLocation(program, 'apos');
 
+  //9个元素构建三个顶点的xyz坐标值
   var data = new Float32Array([
-    -1, -1,
-    0, 1,
-    1, -1,]);
+    0, 0, 1,
+    0, 1, 0,
+    1, 0, 0
+  ]);
 
   var buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-  gl.vertexAttribPointer(aposLocation, 2, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(aposLocation, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(aposLocation);
-
-  gl.drawArrays(gl.LINE_LOOP, 0, data.length / 2);
+  // 使用TRIANGLES模式，三点构成一个平面
+  gl.drawArrays(gl.TRIANGLES, 0, data.length / 3);
 
   //声明初始化着色器函数
   function initShader(gl, vertexShaderSource, fragmentShaderSource) {
